@@ -1,0 +1,656 @@
+{
+	"info": {
+		"_postman_id": "97e6e5a6-4b89-491c-b26a-932d4310d65b",
+		"name": "Laboratorio 9 - IC8057 API REST (JSON Persistence)",
+		"description": "Colección completa para el Laboratorio 9. Incluye variables de entorno, pruebas de token y todos los casos de éxito y error (401, 403, 404, 409, 422).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "0. Configuración (Auth)",
+			"description": "Peticiones para obtener y manejar los JWTs de los distintos roles.",
+			"item": [
+				{
+					"name": "LOGIN: Obtener Token Admin (SUCCESS)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Guarda el token JWT del admin para usarlo en peticiones protegidas (DELETE, POST, PUT)",
+									"let response = pm.response.json();",
+									"if (response && response.data && response.data.token) {",
+									"    pm.environment.set(\"jwt_admin\", response.data.token);",
+									"    pm.test(\"Login Exitoso\", function () {",
+									"        pm.expect(pm.response.code).to.be.oneOf([200]);",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Api-Key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/auth/login",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Caso de Éxito. Obtiene un token JWT con rol 'admin'."
+					}
+				},
+				{
+					"name": "LOGIN: Obtener Token Editor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Guarda el token JWT del editor para usarlo en peticiones protegidas (POST, PUT)",
+									"let response = pm.response.json();",
+									"if (response && response.data && response.data.token) {",
+									"    pm.environment.set(\"jwt_editor\", response.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Api-Key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"editor\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/auth/login",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Caso de Éxito. Obtiene un token JWT con rol 'editor'."
+					}
+				},
+				{
+					"name": "LOGIN: Credenciales Inválidas (ERROR 401)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Api-Key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"usuario-falso\",\n    \"password\": \"password-incorrecta\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/auth/login",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Caso de Error: Debe retornar 401 Unauthorized y código 'CREDENCIALES_INVALIDAS'."
+					}
+				}
+			]
+		},
+		{
+			"name": "1. GET /products (Consulta y Negociación)",
+			"description": "Rutas de consulta que requieren solo la API Key.",
+			"item": [
+				{
+					"name": "GET ALL: Listado con Paginación (SUCCESS)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Api-Key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/products?page=1&limit=2",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								}
+							]
+						},
+						"description": "Caso de Éxito. Consulta con paginación."
+					}
+				},
+				{
+					"name": "GET ALL: Negociación de Contenido (XML)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Api-Key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/xml"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/products",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"products"
+							]
+						},
+						"description": "Caso de Éxito. Retorna XML al especificar 'Accept: application/xml'."
+					}
+				},
+				{
+					"name": "GET ID: Detalle de Producto Existente (SUCCESS)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Api-Key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/products/p001",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"products",
+								"p001"
+							]
+						},
+						"description": "Caso de Éxito. Consulta por un ID existente."
+					}
+				},
+				{
+					"name": "GET ID: Producto No Encontrado (ERROR 404)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Api-Key",
+								"value": "{{API_KEY}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/products/p999",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"products",
+								"p999"
+							]
+						},
+						"description": "Caso de Error: Debe retornar 404 Not Found y código 'PRODUCTO_NO_ENCONTRADO'."
+					}
+				},
+				{
+					"name": "GET ID: API Key Faltante (ERROR 401)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOST}}/products/p001",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"products",
+								"p001"
+							]
+						},
+						"description": "Caso de Error: Debe retornar 401 Unauthorized y código 'API_KEY_INVALIDA' por no enviar el header X-Api-Key."
+					}
+				}
+			]
+		},
+		{
+			"name": "2. POST /products (Creación)",
+			"description": "Requiere JWT de rol 'admin' o 'editor'.",
+			"item": [
+				{
+					"name": "POST: Crear Nuevo Producto (SUCCESS 201)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Guarda el ID del nuevo producto para las pruebas de PUT y DELETE",
+									"let response = pm.response.json();",
+									"if (response && response.data && response.data.id) {",
+									"    pm.environment.set(\"temp_new_id\", response.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Proyector Láser\",\n    \"sku\": \"PRJ-LSR\",\n    \"price\": 850.00,\n    \"stock\": 15,\n    \"category\": \"Electronics\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/products",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"products"
+							]
+						},
+						"description": "Caso de Éxito: Crea un nuevo producto (debe retornar 201 Created)."
+					}
+				},
+				{
+					"name": "POST: SKU Duplicado (ERROR 409)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_editor}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Laptop Pro X Duplicada\",\n    \"sku\": \"LPX-001\",\n    \"price\": 10.00,\n    \"stock\": 1,\n    \"category\": \"Duplicado\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/products",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"products"
+							]
+						},
+						"description": "Caso de Error: Debe retornar 409 Conflict y código 'SKU_DUPLICADO' (LPX-001 ya existe en db/products.json)."
+					}
+				},
+				{
+					"name": "POST: Error de Validación (ERROR 422)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_editor}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Producto Inválido\",\n    \"sku\": \"BAD-DATA\",\n    \"price\": 0,\n    \"stock\": -5,\n    \"category\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/products",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"products"
+							]
+						},
+						"description": "Caso de Error: Debe retornar 422 Unprocessable Content, detallando errores en 'price', 'stock' y 'category'."
+					}
+				},
+				{
+					"name": "POST: JWT Faltante (ERROR 401)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Producto\",\n    \"sku\": \"NO-AUTH\",\n    \"price\": 10,\n    \"stock\": 1,\n    \"category\": \"Test\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/products",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"products"
+							]
+						},
+						"description": "Caso de Error: Debe retornar 401 Unauthorized y código 'JWT_FALTANTE' por no enviar el token."
+					}
+				}
+			]
+		},
+		{
+			"name": "3. PUT /products (Actualización)",
+			"description": "Requiere JWT de rol 'admin' o 'editor'.",
+			"item": [
+				{
+					"name": "PUT: Actualizar Producto Existente (SUCCESS)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_editor}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Laptop Pro X (ACTUALIZADA)\",\n    \"sku\": \"LPX-001\",\n    \"price\": 1300.99,\n    \"stock\": 10,\n    \"category\": \"Electronics\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/products/p001",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"products",
+								"p001"
+							]
+						},
+						"description": "Caso de Éxito. Actualiza el producto 'p001' (debe retornar 200 OK)."
+					}
+				},
+				{
+					"name": "PUT: ID No Encontrado (ERROR 404)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_editor}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Producto a actualizar\",\n    \"sku\": \"FAKE-SKU\",\n    \"price\": 10,\n    \"stock\": 1,\n    \"category\": \"Test\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/products/p999",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"products",
+								"p999"
+							]
+						},
+						"description": "Caso de Error: Debe retornar 404 Not Found y código 'PRODUCTO_NO_ENCONTRADO'."
+					}
+				},
+				{
+					"name": "PUT: Token Inválido o Expirado (ERROR 401)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer token.invalido.oexpirado",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Producto a actualizar\",\n    \"sku\": \"TEST-SKU\",\n    \"price\": 10,\n    \"stock\": 1,\n    \"category\": \"Test\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOST}}/products/p001",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"products",
+								"p001"
+							]
+						},
+						"description": "Caso de Error: Debe retornar 401 Unauthorized y código 'JWT_INVALIDO'."
+					}
+				}
+			]
+		},
+		{
+			"name": "4. DELETE /products (Eliminación)",
+			"description": "Requiere JWT de rol 'admin'.",
+			"item": [
+				{
+					"name": "DELETE: Permiso Denegado (ERROR 403)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_editor}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/products/p002",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"products",
+								"p002"
+							]
+						},
+						"description": "Caso de Error: Debe retornar 403 Forbidden y código 'PERMISO_DENEGADO' (El rol 'editor' no puede eliminar)."
+					}
+				},
+				{
+					"name": "DELETE: Producto No Encontrado (ERROR 404)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/products/p888",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"products",
+								"p888"
+							]
+						},
+						"description": "Caso de Error: Debe retornar 404 Not Found y código 'PRODUCTO_NO_ENCONTRADO'."
+					}
+				},
+				{
+					"name": "DELETE: Eliminar Producto Creado (SUCCESS 204)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_admin}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{HOST}}/products/{{temp_new_id}}",
+							"host": [
+								"{{HOST}}"
+							],
+							"path": [
+								"products",
+								"{{temp_new_id}}"
+							]
+						},
+						"description": "Caso de Éxito: Elimina el producto creado en la prueba POST (debe retornar 204 No Content)."
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "HOST",
+			"value": "http://localhost:3000",
+			"type": "string",
+			"description": "URL base de la API. Ajustar si el puerto es diferente."
+		},
+		{
+			"key": "API_KEY",
+			"value": "tu-clave-unica-para-api-key",
+			"type": "string",
+			"description": "La clave definida en el archivo .env."
+		}
+	]
+}

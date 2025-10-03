@@ -1,0 +1,16 @@
+{
+  "name": "lab9-api-rest-json",
+  "version": "1.0.0",
+  "description": "API REST con Node.js y Express, utilizando archivos JSON como persistencia simulada, tal como requiere el Laboratorio 9.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^9.0.1",
+    "xml-js": "^1.6.11"
+  }
+}

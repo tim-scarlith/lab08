@@ -1,0 +1,5 @@
+[
+  { "id": "p001", "name": "Laptop Pro X", "sku": "LPX-001", "price": 1200.50, "stock": 5, "category": "Electronics" },
+  { "id": "p002", "name": "Mechanical Keyboard", "sku": "MKB-002", "price": 95.00, "stock": 12, "category": "Accessories" },
+  { "id": "p003", "name": "4K Monitor 27'", "sku": "MON-4K", "price": 450.00, "stock": 8, "category": "Electronics" }
+]

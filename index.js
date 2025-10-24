@@ -1,4 +1,3 @@
-
 const express = require('express');
 const dotenv = require('dotenv');
 const fs = require('fs');
@@ -6,6 +5,7 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const { js2xml } = require('xml-js'); 
+const cors = require('cors'); 
 
 
 dotenv.config();
@@ -17,6 +17,8 @@ const API_KEY_SECRETA = process.env.API_KEY_SECRETA;
 const JWT_SECRETO = process.env.JWT_SECRETO;
 
 app.use(express.json());
+app.use(cors()); 
+
 const USERS_DB_PATH = path.join(__dirname, 'db', 'users.json');
 const PRODUCTS_DB_PATH = path.join(__dirname, 'db', 'products.json');
 
